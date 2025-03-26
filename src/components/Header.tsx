@@ -1,9 +1,11 @@
 import { GlassWater } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 export function Header() {
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="fixed w-full z-50">
@@ -22,53 +24,39 @@ export function Header() {
               Virtual Bartender
             </h1>
           </Link>
-          <nav className="flex gap-8">
-            <Link
-              to="/"
-              className={`relative px-4 py-2 ${
-                location.pathname === '/' ? 'text-amber-600' : 'text-gray-600'
-              }`}
-            >
-              Home
-              {location.pathname === '/' && (
-                <motion.div
-                  layoutId="underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-red-500"
-                />
-              )}
-            </Link>
-            <Link
-              to="/recipes"
-              className={`relative px-4 py-2 ${
-                location.pathname === '/recipes'
-                  ? 'text-amber-600'
-                  : 'text-gray-600'
-              }`}
-            >
-              Recipes
-              {location.pathname === '/recipes' && (
-                <motion.div
-                  layoutId="underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-red-500"
-                />
-              )}
-            </Link>
-            <Link
-              to="/chat"
-              className={`relative px-4 py-2 ${
-                location.pathname === '/chat'
-                  ? 'text-amber-600'
-                  : 'text-gray-600'
-              }`}
-            >
-              ask Ai
-              {location.pathname === '/chat' && (
-                <motion.div
-                  layoutId="underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-red-500"
-                />
-              )}
-            </Link>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden p-2 text-gray-600"
+            onClick={() => setIsOpen((prev) => !prev)}
+          >
+            {isOpen ? '✖' : '☰'}
+          </button>
+
+          {/* Navigation */}
+          <nav
+            className={`${
+              isOpen ? 'block' : 'hidden'
+            } absolute top-full left-0 w-full bg-white shadow-lg lg:shadow-none lg:bg-transparent lg:static lg:flex gap-8`}
+          >
+            {['/', '/recipes', '/chat'].map((path, index) => (
+              <Link
+                key={index}
+                to={path}
+                className={`relative px-4 py-2 block $ {
+                  location.pathname === path ? 'text-amber-600' : 'text-gray-600'
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                {path === '/' ? 'Home' : path === '/recipes' ? 'Recipes' : 'Ask AI'}
+                {location.pathname === path && (
+                  <motion.div
+                    layoutId="underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-red-500"
+                  />
+                )}
+              </Link>
+            ))}
           </nav>
         </div>
       </div>
