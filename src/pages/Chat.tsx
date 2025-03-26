@@ -1,6 +1,7 @@
-'use client';
+
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import ReactMarkdown from 'react-markdown';
 
 type Message = {
   role: 'user' | 'model';
@@ -24,15 +25,9 @@ export default function Chat() {
 
     setIsLoading(true);
     const userMessage: Message = { role: 'user', content: input };
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-      { role: 'model', content: '' },
-    ]);
+    setMessages((prev) => [...prev, userMessage, { role: 'model', content: '' }]);
 
-    const genAI = new GoogleGenerativeAI(
-      'AIzaSyA4QZlQYBLL3Ms9KO-TUG4PyQn8RRp-V-Q'
-    );
+    const genAI = new GoogleGenerativeAI('AIzaSyA4QZlQYBLL3Ms9KO-TUG4PyQn8RRp-V-Q');
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const systemPrompt = `You are MixMaster AI, a virtual bartender. You are an expert in making drinks and can suggest, explain, and recommend cocktails, mocktails, or any drink-related information. Stay in character as a bartender and only provide responses related to drinks. Do not respond to queries unrelated to bartending.`;
@@ -52,10 +47,7 @@ export default function Chat() {
 
     for await (const chunk of result.stream) {
       response += chunk.text();
-      setMessages((prev) => [
-        ...prev.slice(0, -1),
-        { role: 'model', content: response },
-      ]);
+      setMessages((prev) => [...prev.slice(0, -1), { role: 'model', content: response }]);
     }
 
     setInput('');
@@ -64,29 +56,19 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-screen w-full p-4 bg-black text-white">
-      <div
-        className="flex-1 overflow-y-auto space-y-4 pr-2"
-        style={{ scrollbarWidth: 'none' }}
-      >
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2" style={{ scrollbarWidth: 'none' }}>
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`max-w-lg p-3 rounded-lg shadow-md ${
-              msg.role === 'user'
-                ? 'bg-blue-500 text-white ml-auto'
-                : 'bg-gray-700 text-white mr-auto'
-            }`}
+            className={`max-w-lg p-3 rounded-lg shadow-md ${msg.role === 'user' ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-700 text-white mr-auto'}`}
           >
-            {msg.content}
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
         ))}
         <div ref={chatEndRef} />
       </div>
 
-      <form
-        onSubmit={handleSend}
-        className="flex gap-2 justify-center items-center shadow-md fixed bottom-2 p-4 w-full"
-      >
+      <form onSubmit={handleSend} className="flex gap-2 justify-center items-center shadow-md fixed bottom-2 p-4 w-full">
         <input
           type="text"
           value={input}
@@ -95,11 +77,7 @@ export default function Chat() {
           placeholder="Ask your virtual bartender..."
           disabled={isLoading}
         />
-        <button
-          type="submit"
-          className="p-2 bg-blue-600 text-white rounded-lg"
-          disabled={isLoading}
-        >
+        <button type="submit" className="p-2 bg-blue-600 text-white rounded-lg" disabled={isLoading}>
           {isLoading ? '...' : 'Send'}
         </button>
       </form>
