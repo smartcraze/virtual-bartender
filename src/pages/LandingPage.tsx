@@ -11,10 +11,22 @@ export function LandingPage() {
 
   return (
     <div className="pt-20">
-      {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1583227061267-8428fb76fbfd?w=1600&auto=format&fit=crop&q=80')] opacity-10 bg-cover bg-center" />
-        
+      {/* Hero Section with Video Background */}
+      <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline // Important for mobile
+          className="absolute inset-0 w-full h-full object-cover -z-10"
+          src="/main.mp4" // Assuming filename is main.mp4 in /public
+        >
+          Your browser does not support the video tag.
+        </video>
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40 z-0"></div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -24,21 +36,21 @@ export function LandingPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="w-20 h-20 bg-amber-500 rounded-full mx-auto mb-8 flex items-center justify-center"
+            className="w-20 h-20 bg-amber-500/80 backdrop-blur-sm rounded-full mx-auto mb-8 flex items-center justify-center shadow-lg"
           >
             <GlassWater className="w-10 h-10 text-white" />
           </motion.div>
           
-          <h1 className="text-7xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-amber-600 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-7xl font-bold text-white mb-6 drop-shadow-md">
             Master the Art of Mixology
           </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-sm">
             Discover the secrets of crafting exceptional cocktails from world-class bartenders.
             Your journey to becoming a mixology master starts here.
           </p>
           <Link
             to="/recipes"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-red-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-amber-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-red-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-amber-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50 focus:ring-amber-400"
           >
             Explore Our Collection
             <ChevronRight className="w-5 h-5" />
@@ -201,10 +213,12 @@ export function LandingPage() {
                   <img
                     src={ingredient.image}
                     alt={ingredient.name}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <h3 className="text-xl font-semibold text-center">{ingredient.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 text-center group-hover:text-amber-600 transition-colors">
+                  {ingredient.name}
+                </h3>
               </motion.div>
             ))}
           </div>
@@ -215,20 +229,20 @@ export function LandingPage() {
       <section className="py-32 bg-gradient-to-br from-amber-500 to-red-500 text-white">
         <motion.div
           ref={ref4}
-          initial={{ opacity: 0, y: 50 }}
-          animate={inView4 ? { opacity: 1, y: 0 } : {}}
+          initial={{ opacity: 0 }}
+          animate={inView4 ? { opacity: 1 } : {}}
+          transition={{ duration: 1 }}
           className="max-w-4xl mx-auto text-center px-4"
         >
-          <h2 className="text-5xl font-bold mb-8">Start Your Mixology Journey Today</h2>
-          <p className="text-xl mb-12">
-            Join thousands of cocktail enthusiasts who have mastered the art of mixology
-            through our comprehensive collection of recipes and techniques.
+          <h2 className="text-5xl font-bold mb-6">Ready to Mix?</h2>
+          <p className="text-xl mb-10">
+            Join our community, explore recipes, and start crafting your perfect cocktail today.
           </p>
           <Link
             to="/recipes"
-            className="inline-flex items-center gap-2 bg-white text-amber-500 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+            className="inline-flex items-center gap-2 bg-white text-amber-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-amber-600 focus:ring-white"
           >
-            Browse All Recipes
+            Start Exploring
             <ChevronRight className="w-5 h-5" />
           </Link>
         </motion.div>
