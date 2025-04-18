@@ -47,14 +47,17 @@ export default function Chat() {
     setMessages((prev) => [...prev, aiMessagePlaceholder]);
 
     try {
-      if (!import.meta.env.VITE_GOOGLE_AI_API_KEY) {
-        throw new Error('API key is not configured');
+      // Use environment variable for API Key
+      const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error('API key is not configured. Please set VITE_GOOGLE_AI_API_KEY in your .env file.');
       }
 
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_API_KEY);
+      const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
       const chat = model.startChat({
+        // Pass message history, excluding the placeholder
         history: messages
           .filter(m => m.id !== aiMessagePlaceholder.id)
           .map((msg) => ({
@@ -81,6 +84,7 @@ Please provide your response in a clear, friendly manner. If the request is for 
 
       const result = await chat.sendMessageStream(prompt);
 
+      // Stream the response
       let accumulatedText = '';
       for await (const chunk of result.stream) {
         accumulatedText += chunk.text();
@@ -96,7 +100,7 @@ Please provide your response in a clear, friendly manner. If the request is for 
     } catch (err) {
       console.error('AI Error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(`Oops! The bartender is taking a short break. Error: ${errorMessage}`);
+      setError(`Oops! The bartender had an issue: ${errorMessage}`);
       // Remove placeholder and user message on error
       setMessages((prev) => prev.filter(m => m.id !== userMessage.id && m.id !== aiMessagePlaceholder.id));
     } finally {
@@ -107,30 +111,28 @@ Please provide your response in a clear, friendly manner. If the request is for 
   const handleCopy = (text: string, messageId: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedMessageId(messageId);
-      setTimeout(() => setCopiedMessageId(null), 2000); // Reset after 2 seconds
+      setTimeout(() => setCopiedMessageId(null), 2000);
     }).catch(err => {
       console.error('Failed to copy text: ', err);
-      // Optionally show an error message to the user
     });
   };
 
   return (
+    // Main container with video background
     <div className="relative flex flex-col h-screen text-white font-sans overflow-hidden">
-      {/* Video Background */}
       <video
         autoPlay
         loop
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover -z-10"
-        src="/chat2.mp4" // Changed video source
+        src="/chat2.mp4" // Using chat2.mp4 video
       >
         Your browser does not support the video tag.
       </video>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/60 z-0"></div>
+      <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Overlay */}
 
-      {/* Header - Ensure it's above the overlay */}
+      {/* Header */}
       <div className="bg-black/50 backdrop-blur-lg p-4 shadow-xl border-b border-purple-600/30 sticky top-0 z-20">
         <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-purple-400 via-pink-500 to-orange-400 text-transparent bg-clip-text">
           MixMaster AI
@@ -138,14 +140,12 @@ Please provide your response in a clear, friendly manner. If the request is for 
         <p className="text-center text-xs text-purple-300/80 tracking-wider">Your Virtual Bartender</p>
       </div>
 
-      {/* Chat Area - Ensure it's above the overlay */}
+      {/* Chat Area */}
       <div
-        className="flex-1 overflow-y-auto space-y-6 p-6 chat-area relative z-10" // Added z-10
-        style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#7e22ce transparent', // Darker Purple scrollbar
-        }}
+        className="flex-1 overflow-y-auto space-y-6 p-6 chat-area relative z-10"
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#7e22ce transparent' }}
       >
+        {/* Welcome Message */}
         {messages.length === 0 && !isLoading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 animate-fade-in pointer-events-none">
             <div className="relative mb-6">
@@ -157,11 +157,11 @@ Please provide your response in a clear, friendly manner. If the request is for 
           </div>
         )}
         
+        {/* Messages */}
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex items-start gap-3 animate-slide-in-bottom z-10 relative ${msg.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+            className={`flex items-start gap-3 animate-slide-in-bottom z-10 relative ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'model' && (
               <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg border-2 border-purple-800/50">
@@ -171,8 +171,8 @@ Please provide your response in a clear, friendly manner. If the request is for 
             <div
               className={`relative group max-w-lg lg:max-w-xl p-4 rounded-2xl shadow-xl transition-all duration-300 prose prose-sm prose-invert prose-headings:my-2 prose-p:my-1 prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-r from-blue-700 to-cyan-600/90 text-white rounded-br-lg' // Slightly transparent bubbles
-                  : 'bg-gradient-to-l from-gray-700/90 to-gray-800/80 backdrop-blur-sm text-gray-200 rounded-bl-lg' // Slightly transparent bubbles + blur
+                  ? 'bg-gradient-to-r from-blue-700 to-cyan-600/90 text-white rounded-br-lg'
+                  : 'bg-gradient-to-l from-gray-700/90 to-gray-800/80 backdrop-blur-sm text-gray-200 rounded-bl-lg'
               }`}
             >
               {msg.role === 'model' ? (
@@ -197,7 +197,7 @@ Please provide your response in a clear, friendly manner. If the request is for 
                  </div>
               )}
             </div>
-            {msg.role === 'user' && (
+             {msg.role === 'user' && (
               <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg border-2 border-cyan-700/50">
                 <User size={18} className="text-white" />
               </div>
@@ -205,34 +205,35 @@ Please provide your response in a clear, friendly manner. If the request is for 
           </div>
         ))}
 
+        {/* Error Message */}
         {error && (
           <div className="sticky bottom-20 z-10 max-w-md mx-auto bg-red-800/80 backdrop-blur-sm border border-red-600 text-red-100 p-3 rounded-lg text-center text-xs animate-shake shadow-lg">
-            <span className="font-semibold">Oops!</span> {error.replace('Oops! The bartender is taking a short break. Error: ', '')}
+            <span className="font-semibold">Oops!</span> {error.replace('Oops! The bartender had an issue: ', '')}
           </div>
         )}
         <div ref={chatEndRef} className="h-1" />
       </div>
 
-      {/* Input Form - Ensure it's above the overlay and video */}
+      {/* Input Form */}
       <div className="bg-gradient-to-t from-black/70 via-black/50 to-transparent p-4 sticky bottom-0 z-20">
         <form
           onSubmit={handleSend}
           className="max-w-3xl mx-auto flex gap-3 items-center bg-gradient-to-br from-gray-800/80 to-gray-900/70 backdrop-blur-md rounded-full p-2 border border-purple-800/50 focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all duration-300 shadow-lg"
         >
-          <textarea
+           <textarea 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSend(e as unknown as FormEvent<HTMLFormElement>);
+                handleSend(e as unknown as FormEvent<HTMLFormElement>); 
               }
             }}
             className="flex-1 bg-transparent focus:outline-none px-4 py-2 text-white placeholder-gray-500 text-sm resize-none overflow-hidden max-h-24"
             placeholder={isLoading ? "MixMaster is crafting a response..." : "Ask for a cocktail recipe..."}
             disabled={isLoading}
             rows={1}
-            style={{ height: 'auto' }}
+            style={{ height: 'auto' }} 
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
               target.style.height = 'auto';
